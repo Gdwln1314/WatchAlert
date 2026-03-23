@@ -166,7 +166,12 @@ func (datasourceController datasourceController) PromQuery(ctx *gin.Context) {
 				return nil, err
 			}
 
-			ress = append(ress, res)
+			var newRes provider.QueryResponse
+			newRes.MetricData = res.MetricData
+			for i, v := range newRes.MetricData.MetricResult {
+				newRes.MetricData.MetricResult[i].Values = append(newRes.MetricData.MetricResult[i].Values, v.Value)
+			}
+			ress = append(ress, newRes)
 		}
 
 		return ress, nil
