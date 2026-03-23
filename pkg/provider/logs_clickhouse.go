@@ -95,7 +95,7 @@ func (c ClickHouseProvider) Query(options LogQueryOptions) (Logs, int, error) {
 func (c ClickHouseProvider) Check() (bool, error) {
 	err := c.client.Ping()
 	if err != nil {
-		return false, errors.New("check clickhouse datasource is unhealthy")
+		return false, err
 	}
 
 	return true, nil

@@ -44,6 +44,10 @@ func (h HTTPer) PilotWithMetrics(option EndpointOption, ruleInfo ProbeRuleInfo) 
 		"endpoint":   ruleInfo.Endpoint,
 	}
 
+	for key, value := range ruleInfo.Labels {
+		baseLabels[key] = value
+	}
+
 	// 添加HTTP特定标签
 	httpLabels := make(map[string]any)
 	for k, v := range baseLabels {

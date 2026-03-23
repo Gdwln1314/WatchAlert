@@ -3,6 +3,7 @@ package probe
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 	"watchAlert/internal/ctx"
@@ -138,57 +139,68 @@ func (s *ProbeService) executeProbing(rule models.ProbeRule) {
 
 // executeProbeWithMetrics 执行拨测并获取指标
 func (s *ProbeService) executeProbeWithMetrics(rule models.ProbeRule) ([]provider.Metrics, error) {
+	var metrics []provider.Metrics
 	config := rule.ProbingEndpointConfig
+	endpoints := strings.Split(config.Endpoint, ",")
 
-	// 准备规则信息
-	ruleInfo := provider.ProbeRuleInfo{
+	baseInfo := provider.ProbeRuleInfo{
 		TenantID: rule.TenantId,
 		RuleID:   rule.RuleId,
 		RuleName: rule.RuleName,
+		Labels:   rule.Labels,
 		RuleType: rule.RuleType,
-		Endpoint: config.Endpoint,
 	}
-
-	var metrics []provider.Metrics
 
 	// 根据协议类型选择相应的指标感知探测器
 	switch rule.RuleType {
 	case provider.HTTPEndpointProvider:
 		httper := provider.NewMetricsAwareHTTPer()
-		metrics = httper.PilotWithMetrics(provider.EndpointOption{
-			Endpoint: config.Endpoint,
-			Timeout:  config.Strategy.Timeout,
-			HTTP: provider.Ehttp{
-				Method: config.HTTP.Method,
-				Header: config.HTTP.Header,
-				Body:   config.HTTP.Body,
-			},
-		}, ruleInfo)
+		for _, endpoint := range endpoints {
+			baseInfo.Endpoint = endpoint
+			metrics = append(metrics, httper.PilotWithMetrics(provider.EndpointOption{
+				Endpoint: endpoint,
+				Timeout:  config.Strategy.Timeout,
+				HTTP: provider.Ehttp{
+					Method: config.HTTP.Method,
+					Header: config.HTTP.Header,
+					Body:   config.HTTP.Body,
+				},
+			}, baseInfo)...)
+		}
 
 	case provider.ICMPEndpointProvider:
 		pinger := provider.NewMetricsAwarePinger()
-		metrics = pinger.PilotWithMetrics(provider.EndpointOption{
-			Endpoint: config.Endpoint,
-			Timeout:  config.Strategy.Timeout,
-			ICMP: provider.Eicmp{
-				Interval: config.ICMP.Interval,
-				Count:    config.ICMP.Count,
-			},
-		}, ruleInfo)
+		for _, endpoint := range endpoints {
+			baseInfo.Endpoint = endpoint
+			metrics = append(metrics, pinger.PilotWithMetrics(provider.EndpointOption{
+				Endpoint: endpoint,
+				Timeout:  config.Strategy.Timeout,
+				ICMP: provider.Eicmp{
+					Interval: config.ICMP.Interval,
+					Count:    config.ICMP.Count,
+				},
+			}, baseInfo)...)
+		}
 
 	case provider.TCPEndpointProvider:
 		tcper := provider.NewMetricsAwareTcper()
-		metrics = tcper.PilotWithMetrics(provider.EndpointOption{
-			Endpoint: config.Endpoint,
-			Timeout:  config.Strategy.Timeout,
-		}, ruleInfo)
+		for _, endpoint := range endpoints {
+			baseInfo.Endpoint = endpoint
+			metrics = append(metrics, tcper.PilotWithMetrics(provider.EndpointOption{
+				Endpoint: endpoint,
+				Timeout:  config.Strategy.Timeout,
+			}, baseInfo)...)
+		}
 
 	case provider.SSLEndpointProvider:
 		ssler := provider.NewMetricsAwareSSLer()
-		metrics = ssler.PilotWithMetrics(provider.EndpointOption{
-			Endpoint: config.Endpoint,
-			Timeout:  config.Strategy.Timeout,
-		}, ruleInfo)
+		for _, endpoint := range endpoints {
+			baseInfo.Endpoint = endpoint
+			metrics = append(metrics, ssler.PilotWithMetrics(provider.EndpointOption{
+				Endpoint: endpoint,
+				Timeout:  config.Strategy.Timeout,
+			}, baseInfo)...)
+		}
 
 	default:
 		return nil, fmt.Errorf("unsupported rule type: %s", rule.RuleType)

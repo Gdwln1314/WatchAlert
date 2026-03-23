@@ -29,6 +29,10 @@ func (p Tcper) PilotWithMetrics(option EndpointOption, ruleInfo ProbeRuleInfo) [
 		"endpoint":   ruleInfo.Endpoint,
 	}
 
+	for key, value := range ruleInfo.Labels {
+		baseLabels[key] = value
+	}
+
 	// 确定成功状态
 	isSuccessful := err == nil
 	if isSuccessful && conn != nil {

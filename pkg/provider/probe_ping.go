@@ -63,6 +63,10 @@ func (p Pinger) PilotWithMetrics(option EndpointOption, ruleInfo ProbeRuleInfo) 
 		"endpoint":   ruleInfo.Endpoint,
 	}
 
+	for key, value := range ruleInfo.Labels {
+		baseLabels[key] = value
+	}
+
 	// 创建ICMP指标
 	metrics := []Metrics{
 		{

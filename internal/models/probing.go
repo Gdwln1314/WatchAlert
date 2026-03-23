@@ -5,6 +5,7 @@ type ProbeRule struct {
 	RuleName              string                `json:"ruleName"`
 	RuleId                string                `json:"ruleId" gorm:"ruleId"`
 	RuleType              string                `json:"ruleType"`
+	Labels                map[string]string     `json:"labels" gorm:"labels;serializer:json"`
 	ProbingEndpointConfig ProbingEndpointConfig `json:"probingEndpointConfig" gorm:"probingEndpointConfig;serializer:json"`
 	DatasourceId          string                `json:"datasourceId"`
 	UpdateAt              int64                 `json:"updateAt"`

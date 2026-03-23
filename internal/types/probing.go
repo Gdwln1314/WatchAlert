@@ -7,6 +7,7 @@ type RequestProbingRuleCreate struct {
 	TenantId              string                       `json:"tenantId"`
 	RuleName              string                       `json:"ruleName"`
 	RuleType              string                       `json:"ruleType"`
+	Labels                map[string]string            `json:"labels" gorm:"labels;serializer:json"`
 	RepeatNoticeInterval  int64                        `json:"repeatNoticeInterval"`
 	ProbingEndpointConfig models.ProbingEndpointConfig `json:"probingEndpointConfig" `
 	DatasourceId          string                       `json:"datasourceId"`
@@ -29,6 +30,7 @@ type RequestProbingRuleUpdate struct {
 	RuleId                string                       `json:"ruleId" gorm:"ruleId"`
 	RuleName              string                       `json:"ruleName"`
 	RuleType              string                       `json:"ruleType"`
+	Labels                map[string]string            `json:"labels" gorm:"labels;serializer:json"`
 	RepeatNoticeInterval  int64                        `json:"repeatNoticeInterval"`
 	ProbingEndpointConfig models.ProbingEndpointConfig `json:"probingEndpointConfig" `
 	DatasourceId          string                       `json:"datasourceId"`

@@ -14,11 +14,12 @@ type MetricsAwareProbe interface {
 
 // ProbeRuleInfo 探测规则信息，用于生成指标标签（通用）
 type ProbeRuleInfo struct {
-	TenantID string `json:"tenant_id"`
-	RuleID   string `json:"rule_id"`
-	RuleName string `json:"rule_name"`
-	RuleType string `json:"rule_type"`
-	Endpoint string `json:"endpoint"`
+	TenantID string            `json:"tenant_id"`
+	RuleID   string            `json:"rule_id"`
+	RuleName string            `json:"rule_name"`
+	Labels   map[string]string `json:"labels"`
+	RuleType string            `json:"rule_type"`
+	Endpoint string            `json:"endpoint"`
 }
 
 // BoolToFloat 将布尔值转换为浮点数

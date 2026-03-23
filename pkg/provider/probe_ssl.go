@@ -26,6 +26,10 @@ func (p Ssler) PilotWithMetrics(option EndpointOption, ruleInfo ProbeRuleInfo) [
 		"endpoint":   ruleInfo.Endpoint,
 	}
 
+	for key, value := range ruleInfo.Labels {
+		baseLabels[key] = value
+	}
+
 	// 发起 HTTPS 请求
 	resp, err := tools.Get(nil, "https://"+option.Endpoint, option.Timeout)
 	if err != nil {
