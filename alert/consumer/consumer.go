@@ -104,12 +104,7 @@ func (ag *AlertGroups) getNoticeId(alert *models.AlertCurEvent, faultCenter mode
 		labels := alert.Labels
 
 		for _, route := range faultCenter.NoticeRoutes {
-			val, ok := labels[route.Key].(string)
-			if !ok {
-				continue
-			}
-
-			if regexp.MustCompile(route.Value).MatchString(val) {
+			if evalCondition(labels, route.NoticeLabels) {
 				return route.NoticeIds
 			}
 		}
@@ -382,4 +377,38 @@ func (c *Consume) StopAllConsumers() {
 	}
 
 	logc.Infof(c.ctx.Ctx, "所有故障中心消费者已停止")
+}
+
+func evalCondition(metrics map[string]interface{}, noticeLabels []models.NoticeLabels) bool {
+	for _, noticeLabel := range noticeLabels {
+		value, exists := metrics[noticeLabel.Key]
+		if !exists {
+			return false
+		}
+
+		val, ok := value.(string)
+		if !ok {
+			continue
+		}
+
+		var matched bool
+		switch noticeLabel.Operator {
+		case "==", "=":
+			matched = (val == noticeLabel.Value)
+		case "!=":
+			matched = (val != noticeLabel.Value)
+		case "=~":
+			matched = regexp.MustCompile(noticeLabel.Value).MatchString(val)
+		case "!~":
+			matched = !regexp.MustCompile(noticeLabel.Value).MatchString(val)
+		default:
+			matched = false
+		}
+
+		if !matched {
+			return false
+		}
+	}
+
+	return true
 }

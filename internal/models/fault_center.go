@@ -49,9 +49,14 @@ type UpgradeStrategy struct {
 }
 
 type NoticeRoute struct {
-	Key       string   `json:"key"`
-	Value     string   `json:"value"`
-	NoticeIds []string `json:"noticeIds" gorm:"column:noticeIds;serializer:json"`
+	NoticeLabels []NoticeLabels `json:"labels" gorm:"column:labels;serializer:json"`
+	NoticeIds    []string       `json:"noticeIds" gorm:"column:noticeIds;serializer:json"`
+}
+
+type NoticeLabels struct {
+	Key      string `json:"key"`
+	Value    string `json:"value"`
+	Operator string `json:"operator"`
 }
 
 func (u *UpgradeStrategy) GetEnabled() bool {
