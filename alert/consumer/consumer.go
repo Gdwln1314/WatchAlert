@@ -273,29 +273,11 @@ func (c *Consume) sendAlerts(faultCenter models.FaultCenter, aggEvents *AlertGro
 // processAlertGroup 处理告警组
 func (c *Consume) processAlertGroup(faultCenter models.FaultCenter, noticeId string, alerts []*models.AlertCurEvent) {
 	g := new(errgroup.Group)
-	g.Go(func() error { return c.handleSubscribe(alerts) })
 	g.Go(func() error { return handleAlert(c.ctx, "alarm", faultCenter, noticeId, alerts) })
 
 	if err := g.Wait(); err != nil {
 		logc.Errorf(c.ctx.Ctx, "Alert group processing failed: %v", err)
 	}
-}
-
-// handleSubscribe 处理订阅逻辑
-func (c *Consume) handleSubscribe(alerts []*models.AlertCurEvent) error {
-	g := new(errgroup.Group)
-	for _, event := range alerts {
-		event := event
-		g.Go(func() error {
-			if err := processSubscribe(c.ctx, event); err != nil {
-				return fmt.Errorf("failed to process subscribe: %v", err)
-			}
-
-			return nil
-		})
-	}
-
-	return g.Wait()
 }
 
 // removeAlertFromCache 从缓存中删除告警
