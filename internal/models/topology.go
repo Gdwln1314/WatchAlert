@@ -46,15 +46,17 @@ type Node struct {
 }
 
 type NodeData struct {
-	Label            string `json:"label"`
-	SubLabel         string `json:"subLabel"`
-	Type             string `json:"type"`
-	EnablePrometheus bool   `json:"enablePrometheus"`
-	MetricsLabel     string `json:"metricsLabel"`
-	PrometheusQuery  string `json:"prometheusQuery"`
-	Operator         string `json:"operator"`
-	Threshold        string `json:"threshold"`
-	DatasourceId     string `json:"datasourceId"`
+	Label        string        `json:"label"`
+	SubLabel     string        `json:"subLabel"`
+	Type         string        `json:"type"`
+	DatasourceId string        `json:"datasourceId"`
+	NodeMetrics  []NodeMetrics `json:"metrics"`
+}
+
+type NodeMetrics struct {
+	ID    string `json:"id"`
+	Query string `json:"query"`
+	Tag   string `json:"tag"`
 }
 
 type Position struct {
